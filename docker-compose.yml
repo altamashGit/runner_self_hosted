@@ -1,8 +1,12 @@
-
-version: '3'
+version: '3.8'
 services:
-  flask-app:
-    image: devops-demo:latest
+  web:
     build: .
+#     image: 
+#    container: flask-aapp
     ports:
-      - "5000:5000"
+      - 5000:5000
+    networks:
+      - new-network
+networks:
+  new-network:
