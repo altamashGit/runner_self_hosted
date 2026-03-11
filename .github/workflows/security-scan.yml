@@ -1,10 +1,11 @@
 name: Docker Image Scan
 
 on:
-    workflow_run:
-        workflows: ["Build Artifact"]
-        types:
-            - completed
+    workflow_call:
+   # workflow_run:
+   #     workflows: ["Build Artifact"]
+   #     types:
+   #         - completed
 jobs:
     images-scan:
         runs-on: ubuntu-latest
