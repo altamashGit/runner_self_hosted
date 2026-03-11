@@ -1,10 +1,10 @@
-name: Docker Build & Push
-
+name: Ddocker-build-&-push
 on:
-    workflow_run:
-        workflows: ["Build Artifact"]
-        types:
-            -  completed
+    workflow_call:
+   # workflow_run:
+   #     workflows: ["Docker Image Scan"]
+   #     types:
+   #         -  completed
 
 jobs:
     docker:
