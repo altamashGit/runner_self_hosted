@@ -24,4 +24,4 @@ jobs:
                 image-ref: "python-app:latest"
                 format: "table"
                 severity: "CRITICAL"
-                exit-code: "0"
+                exit-code: "1"
