@@ -1,0 +1,17 @@
+name: App build
+
+on:
+    push:
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+     - name: git checkout
+       uses: actions/checkout@v6
+
+     - name: print wrking directory        
+       run: pwd
+
+     - name: change directory
+       run: cd ~/runner_self_hosted 
