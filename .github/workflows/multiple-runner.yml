@@ -1,6 +1,5 @@
 name: Multiple runner
-on:
-  push: [ main ]
+on: push
 
 jobs:
   ubunutu-job:
