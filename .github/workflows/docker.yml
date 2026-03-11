@@ -2,7 +2,7 @@ name: Docker Build & Push
 
 on:
     workflow_run:
-        workflows: ["Bild Artifact"]
+        workflows: ["Build Artifact"]
         types:
             -  completed
 
