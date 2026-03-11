@@ -1,0 +1,25 @@
+name: EC2 Deploye
+
+on:
+  workflow_call:
+    #workflow_run:
+    #    workflows: ["Docker Build & push"]
+    #    types:
+    #        - completed
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        environment: production
+
+        steps:
+            - name: Deploy to EC2
+              uses: appleboy/ssh-action@v1.2.5
+              with:
+                host: ${{ secrets.HOST }}
+                username: ${{ secrets.USERNAME }}
+                password: ${{ secrets.PASSWORD }}
+                script: |
+                 docker pull ${{ vars.DOCKER_USERNAME }}/python-app:latest
+                 docker stop python-app || true
+                 docker rm python-app || true
+                 docker run -dp 5000:5000 --name ${{ vars.DOCKER_USERNAME }}/python-app:latest
