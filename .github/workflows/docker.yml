@@ -24,6 +24,6 @@ jobs:
                 docker build -t ${{ vars.DOCKERHUB_USERNAME }}/python-app:latest .
             - name: Push Docker Image to DockerHUb
               run: |
-               docker push ${{ vars.DOCKERHUB_USERNAME }}/python-app:latest .
+               docker push ${{ vars.DOCKERHUB_USERNAME }}/python-app:latest
               
                
