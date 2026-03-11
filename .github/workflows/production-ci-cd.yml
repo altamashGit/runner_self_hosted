@@ -17,12 +17,12 @@ jobs:
    uses: ./.github/workflows/build.yml
 
   dokcer-push:
-   needs: [lint, test, artifact, docker-build-&-push]
+   needs: [lint, test, artifact, docker-build-push]
    uses: ./.github/workflows/docker.yml
    secrets: inherit
 
   scan:
-   needs: [lint, test, docker-build-&-push]
+   needs: [lint, test, docker-build-push]
    uses: ./.github/workflows/security-scan.yml
    secrets: inherit
 
