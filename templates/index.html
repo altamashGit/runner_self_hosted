@@ -1,46 +1,505 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-<title>DevOps Pipeline Dashboard</title>
+<title>DevSecOps CI/CD Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-body {
-    font-family: Arial;
-    background: #0f172a;
-    color: white;
+  :root {
+    --bg: #080d14;
+    --surface: #0e1621;
+    --card: #111c2d;
+    --border: #1a2e47;
+    --green: #22c55e;
+    --blue: #38bdf8;
+    --cyan: #06b6d4;
+    --orange: #f97316;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px 24px;
+  }
+
+  /* Header */
+  .header {
     text-align: center;
-}
-.container {
-    margin-top: 50px;
-}
-.card {
-    background: #1e293b;
-    padding: 20px;
-    margin: 15px;
+    margin-bottom: 56px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  .badge-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 50%, var(--green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .subtitle span {
+    color: var(--blue);
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--blue);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+  }
+
+  /* Pipeline flow */
+  .pipeline-section {
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 4px 0 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .pipe-step {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pipe-box {
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    display: inline-block;
-    width: 250px;
-}
-.done {
-    color: #22c55e;
-    font-weight: bold;
-}
-h1 {
-    color: #38bdf8;
-}
+    padding: 12px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
+
+  .pipe-box:hover {
+    border-color: var(--blue);
+    transform: translateY(-2px);
+  }
+
+  .pipe-box.active {
+    border-color: var(--green);
+    box-shadow: 0 0 16px rgba(34,197,94,0.15);
+  }
+
+  .pipe-box .icon {
+    font-size: 18px;
+    display: block;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .pipe-time {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .pipe-arrow {
+    flex-shrink: 0;
+    color: var(--border);
+    font-size: 18px;
+    margin: 0 4px;
+    padding-bottom: 22px;
+  }
+
+  /* Job cards */
+  .jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .job-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .job-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), transparent);
+  }
+
+  .job-card:hover {
+    border-color: rgba(56,189,248,0.4);
+    transform: translateY(-3px);
+  }
+
+  .job-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .job-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .job-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .job-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .job-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-blue  { color: var(--blue);   border-color: rgba(56,189,248,0.3);  background: rgba(56,189,248,0.05); }
+  .tag-green { color: var(--green);  border-color: rgba(34,197,94,0.3);   background: rgba(34,197,94,0.05); }
+  .tag-orange{ color: var(--orange); border-color: rgba(249,115,22,0.3);  background: rgba(249,115,22,0.05); }
+  .tag-cyan  { color: var(--cyan);   border-color: rgba(6,182,212,0.3);   background: rgba(6,182,212,0.05); }
+
+  /* Security section */
+  .security-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .sec-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .sec-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .sec-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .sec-desc {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+    animation: fadeUp 0.6s 0.6s ease both;
+  }
+
+  .footer strong { color: var(--blue); }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.8); }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-<h1>DevOps CI/CD Pipeline</h1>
-<p>Flask + GitHub Actions + Docker</p>
+<div class="page">
 
-{% for task in tasks %}
-<div class="card">
-<h3>{{task.name}}</h3>
-<p class="done">✔ Completed</p>
-</div>
-{% endfor %}
+  <!-- Header -->
+  <div class="header">
+    <div class="badge"><span class="badge-dot"></span> Pipeline Active</div>
+    <h1>DevSecOps CI/CD Pipeline</h1>
+    <p class="subtitle">
+      <span>Flask</span> &nbsp;+&nbsp; <span>GitHub Actions</span> &nbsp;+&nbsp;
+      <span>Docker</span> &nbsp;+&nbsp; <span>AWS EC2</span>
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-value">97</div><div class="stat-label">Workflow Runs</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">6</div><div class="stat-label">Pipeline Jobs</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">3m 12s</div><div class="stat-label">Avg Duration</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value" style="color:var(--green)">✓</div><div class="stat-label">Status: Passing</div></div>
+  </div>
+
+  <!-- Pipeline flow -->
+  <div class="pipeline-section">
+    <div class="section-label">Pipeline Flow</div>
+    <div class="pipeline-flow">
+      <div class="pipe-step">
+        <div class="pipe-box active"><span class="icon">🔍</span>lint</div>
+        <div class="pipe-time">6s</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box active"><span class="icon">🧪</span>test</div>
+        <div class="pipe-time">11s</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box active"><span class="icon">📦</span>artifact</div>
+        <div class="pipe-time">4s</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box active"><span class="icon">🛡️</span>image-scan</div>
+        <div class="pipe-time">22s</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box active"><span class="icon">🐳</span>docker-push</div>
+        <div class="pipe-time">19s</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box active"><span class="icon">🚀</span>deploy</div>
+        <div class="pipe-time">12s</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Cards -->
+  <div class="section-label">Jobs</div>
+  <div class="jobs-grid">
+    {% for task in tasks %}
+    <div class="job-card">
+      <div class="job-header">
+        <span class="job-name">{{ task.name }}</span>
+        <span class="job-status">✔ Completed</span>
+      </div>
+      <div class="job-desc">{{ task.description if task.description else 'Job completed successfully in the CI/CD pipeline.' }}</div>
+      <div class="job-meta">
+        <span class="tag tag-green">success</span>
+        <span class="tag tag-blue">main</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- DevSecOps Section -->
+  <div class="section-label">DevSecOps Practices</div>
+  <div class="security-row">
+    <div class="sec-item">
+      <span class="sec-icon">👤</span>
+      <div>
+        <div class="sec-title">Non-Root Container</div>
+        <div class="sec-desc">Dockerfile runs as non-root user to limit privilege</div>
+      </div>
+    </div>
+    <div class="sec-item">
+      <span class="sec-icon">🔒</span>
+      <div>
+        <div class="sec-title">Secrets Management</div>
+        <div class="sec-desc">All credentials stored in GitHub Actions Secrets</div>
+      </div>
+    </div>
+    <div class="sec-item">
+      <span class="sec-icon">🛡️</span>
+      <div>
+        <div class="sec-title">Image Vulnerability Scan</div>
+        <div class="sec-desc">Docker image scanned for CVEs before deploy</div>
+      </div>
+    </div>
+    <div class="sec-item">
+      <span class="sec-icon">✋</span>
+      <div>
+        <div class="sec-title">Manual Approval Gate</div>
+        <div class="sec-desc">GitHub Environment protects production deploy</div>
+      </div>
+    </div>
+    <div class="sec-item">
+      <span class="sec-icon">📌</span>
+      <div>
+        <div class="sec-title">Pinned Action Versions</div>
+        <div class="sec-desc">Official Actions pinned to prevent supply-chain risks</div>
+      </div>
+    </div>
+    <div class="sec-item">
+      <span class="sec-icon">🔌</span>
+      <div>
+        <div class="sec-title">Minimal Port Exposure</div>
+        <div class="sec-desc">Only port 5000 exposed — no unnecessary attack surface</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Deployed on <strong>AWS EC2</strong> &nbsp;·&nbsp;
+    Image on <strong>DockerHub: altamsh/python-app</strong> &nbsp;·&nbsp;
+    Built with <strong>GitHub Actions</strong>
+  </div>
 
 </div>
 </body>
