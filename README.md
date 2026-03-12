@@ -26,11 +26,31 @@ The Dockerfile runs the application as a non-root user — a critical security p
 2. Secrets and Credentials — Never Hardcoded  
 All sensitive values (DockerHub credentials, EC2 SSH key, server IP) are stored as GitHub Actions Secrets and passed via environment variables. Nothing sensitive is ever committed to the repository.
 
-<img width="1858" height="653" alt="Screenshot 2026-03-12 054106" src="https://github.com/user-attachments/assets/e246f05e-7a9a-4ee4-9b82-2cf27f9d9222" />
+<img width="1513" height="415" alt="Screenshot 2026-03-12 164133" src="https://github.com/user-attachments/assets/058fa0e5-1aa1-4de6-8fd8-d249029e36fe" />
 
+Dockerfile
+```bash
+FROM python:3.12-slim
+# Prevent python from writing pyc files
+ENV PYTHONDONTWRITEBYTECODE=1
+# Prevent buffering
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+
+RUN useradd -m appuser #non root user
+USER appuser # switch to non root user
+EXPOSE 5000
+CMD ["python", "app.py"]
+```
 
 4. Docker Image Vulnerability Scan(Trivy)  
 A dedicated images-scan job scans the Docker image for known vulnerabilities before it is pushed to DockerHub or deployed to production. The pipeline halts if critical CVEs are found.
+
+<img width="1907" height="840" alt="image" src="https://github.com/user-attachments/assets/223264c1-6116-4f2b-86d0-9e4a62a4e2bf" />
+
 
 ## 🛑 Manual Approval Gate — Environment Protection  
 Before deploying to EC2, the pipeline pauses and waits for a human to approve. This prevents broken or untested code from reaching production automatically.
